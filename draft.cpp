@@ -3,10 +3,13 @@
 #include <map>
 #include <vector>
 #include <sys/time.h>
- timeval t1, t2;
-     double elapsedTime;
+#include <kchashdb.h>
 
 using namespace std;
+using namespace kyotocabinet;
+timeval t1, t2;
+     double elapsedTime;
+
 char chrs [] = 
 {
     '0','1','2','3','4','5','6','7','8','9',
@@ -27,7 +30,15 @@ void fillLookup()
         lookup[chars[i]]=i;
     }
 }
-
+std::string conv(int decimal, int base){
+        if(decimal == 0) return "0";
+                std::string result = ""; // Create empty string ready for data to be appended
+                    do{
+                        result.push_back(chrs[decimal%base]);
+                        decimal /= base; // Calculate new value of decimal
+                     }while(decimal != 0); // Do while used for slight optimisation
+         return std::string(result.rbegin(), result.rend());
+ }
 void increase(int r)
 {
     if(r<0)
@@ -54,12 +65,31 @@ int main ()
     fillLookup();
     int counter=0;
     int prev_status=0,status=-1;
+//    cout << conv (64, 64) << endl;
+//    return 0;
+HashDB db;
+
+  // open the database
+  if (!db.open("casket.kch", HashDB::OWRITER | HashDB::OCREATE)) {
+    cerr << "open error: " << db.error().name() << endl;
+  }
+
+  // store records
+  if (!db.set("foo", "hop"))
+{
+ cout << " error "<< endl;
+}  
     for(int i=0; 1; i++)
     {
            gettimeofday(&t2, NULL);
         increase(uuid.length()-1);
         //cout << uuid<<endl;
-        if(uuid.length()==6)
+        stringstream ss;
+        ss << counter; 
+        if (!db.set(uuid, ss.str()))
+{
+ cout << " error "<< endl;
+}      if(uuid.length()==6)
             break;
         counter++;
         prev_status=status;
@@ -74,6 +104,10 @@ int main ()
             cout << flush;
         }
     }
+      if (!db.close()) {
+              cerr << "close error: " << db.error().name() << endl;
+                }
+
 }
 
 
