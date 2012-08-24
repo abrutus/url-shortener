@@ -47,7 +47,8 @@ class UrlGenerator
                 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Z',
                 '_','-'
             };
-            vector <char> chars (chrs, chrs + sizeof(chrs)/ sizeof(chrs[0]));
+            vector <char> charx (chrs, chrs + sizeof(chrs)/ sizeof(chrs[0]));
+            chars=charx;
             fillLookup();
             
             // open the database
